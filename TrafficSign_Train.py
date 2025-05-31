@@ -13,6 +13,8 @@ import os
 import pandas as pd
 import random
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
  
  
 ################# Parameters #####################
@@ -191,11 +193,34 @@ plt.legend(['training','validation'])
 plt.title('Acurracy')
 plt.xlabel('epoch')
 plt.show()
+
 score =model.evaluate(X_test,y_test,verbose=0)
 print('Test Score:',score[0])
 print('Test Accuracy:',score[1])
- 
- 
+
+# Add horizontal lines for Test Loss and Test Accuracy
+plt.figure(1)
+plt.axhline(y=score[0], color='r', linestyle='--', label='Test Loss')
+plt.legend(['training', 'validation', 'Test Loss'])
+plt.figure(2)
+plt.axhline(y=score[1], color='g', linestyle='--', label='Test Accuracy')
+plt.legend(['training', 'validation', 'Test Accuracy'])
+plt.show()
+
+# CONFUSION MATRIX
+y_pred_classes = np.argmax(model.predict(X_test), axis=1)
+y_true_classes = np.argmax(y_test, axis=1)
+conf_matrix = confusion_matrix(y_true_classes, y_pred_classes)
+
+plt.figure(figsize=(15, 10))
+sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues",
+            xticklabels=[str(i) for i in range(noOfClasses)],
+            yticklabels=[str(i) for i in range(noOfClasses)])
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.title('Confusion Matrix')
+plt.show()
+
 # STORE THE MODEL AS A PICKLE OBJECT
 pickle_out= open("model_trained.p","wb")  # wb = WRITE BYTE
 pickle.dump(model,pickle_out)
